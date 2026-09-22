@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Le dernier verrou</title>
+<link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+<main>
+  <h1>Le dernier verrou</h1>
+  <div class="card">
+    <p>Tu as tout ce qu'il te faut pour déchiffrer ce dernier message.</p>
+    <div class="cipher-block">{{STAGE9_CIPHERTEXT}}</div>
+    <form id="decrypt-form" autocomplete="off">
+      <label for="key-input">Clé de Vigenère</label>
+      <input id="key-input" type="text" placeholder="sept lettres..." spellcheck="false" />
+    </form>
+    <p class="hint">Déchiffré :</p>
+    <div class="cipher-block" id="decrypted-output">(tape une clé ci-dessus)</div>
+  </div>
+  <div class="card" id="win-box" hidden>
+    <p id="win-message" style="font-size:1.3rem;font-weight:700;"></p>
+  </div>
+  <footer class="site-footer">étape 9 sur 9</footer>
+</main>
+<script type="module">
+  import { vigenereDecrypt } from '../lib/vigenere.js';
+  import { answerHash } from '../lib/hash.js';
+
+  const CIPHERTEXT = {{STAGE9_CIPHERTEXT_JS}};
+  const FINAL_HASH = "{{FINAL_PLAINTEXT_HASH}}";
+
+  const keyInput = document.getElementById('key-input');
+  const output = document.getElementById('decrypted-output');
+  const winBox = document.getElementById('win-box');
+  const winMessage = document.getElementById('win-message');
+
+  keyInput.addEventListener('input', async () => {
+    const key = keyInput.value.trim();
+    if (!key) {
+      output.textContent = '(tape une clé ci-dessus)';
+      winBox.hidden = true;
+      return;
+    }
+    try {
+      const plain = vigenereDecrypt(CIPHERTEXT, key);
+      output.textContent = plain;
+      const hash = await answerHash(plain);
+      if (hash === FINAL_HASH) {
+        winMessage.textContent = plain;
+        winBox.hidden = false;
+      } else {
+        winBox.hidden = true;
+      }
+    } catch (e) {
+      output.textContent = '(des lettres uniquement)';
+    }
+  });
+</script>
+</body>
+</html>

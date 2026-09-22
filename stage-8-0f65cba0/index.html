@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Snake &middot; atteins 28</title>
+<link rel="stylesheet" href="../css/style.css" />
+<!-- lettre du mot-clé 8/8 : T -->
+</head>
+<body>
+<main>
+  <h1>Encore une partie</h1>
+  <div class="card">
+    <img src="../assets/deco-8-T.svg" width="28" height="28" alt="un petit dessin" />
+    <p>Fais exactement <strong>28 points</strong> pour
+    débloquer le dernier mot de passe. Flèches du clavier ou glisser au
+    doigt pour diriger le serpent.</p>
+    <p>Score : <span class="streak" id="score">0</span></p>
+    <canvas id="snake-canvas" width="400" height="400"></canvas>
+    <p class="hint">Astuce : dépasser 28 continue juste la
+    partie - il faudra recommencer (recharger la page) si tu vas trop
+    loin.</p>
+  </div>
+  <div id="portal-widget"></div>
+  <footer class="site-footer">étape 8 sur 9</footer>
+</main>
+
+<div class="modal-backdrop" id="win-modal" hidden>
+  <div class="modal-box">
+    <h2>28 !</h2>
+    <p>Voici le prochain mot de passe :</p>
+    <p id="win-message" style="font-size:1.3rem;font-weight:700;"></p>
+  </div>
+</div>
+
+<script>
+  const WIN_MESSAGE_B64 = "TGV2ZWwgdXAh";
+  const TARGET_SCORE = 28;
+
+  function b64ToUtf8(b64) {
+    const binary = atob(b64);
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+
+  const canvas = document.getElementById('snake-canvas');
+  const ctx = canvas.getContext('2d');
+  const CELL = 20;
+  const GRID = canvas.width / CELL;
+
+  let snake, direction, nextDirection, food, score, alive, timer;
+
+  function resetGame() {
+    snake = [{ x: 10, y: 10 }];
+    direction = { x: 1, y: 0 };
+    nextDirection = direction;
+    score = 0;
+    alive = true;
+    document.getElementById('score').textContent = score;
+    placeFood();
+  }
+
+  function placeFood() {
+    do {
+      food = {
+        x: Math.floor(Math.random() * GRID),
+        y: Math.floor(Math.random() * GRID),
+      };
+    } while (snake.some((s) => s.x === food.x && s.y === food.y));
+  }
+
+  function tick() {
+    if (!alive) return;
+    direction = nextDirection;
+    const head = {
+      x: snake[0].x + direction.x,
+      y: snake[0].y + direction.y,
+    };
+
+    if (
+      head.x < 0 ||
+      head.y < 0 ||
+      head.x >= GRID ||
+      head.y >= GRID ||
+      snake.some((s) => s.x === head.x && s.y === head.y)
+    ) {
+      alive = false;
+      return;
+    }
+
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+      score += 1;
+      document.getElementById('score').textContent = score;
+      if (score === TARGET_SCORE) {
+        alive = false;
+        document.getElementById('win-message').textContent = b64ToUtf8(WIN_MESSAGE_B64);
+        document.getElementById('win-modal').hidden = false;
+        return;
+      }
+      placeFood();
+    } else {
+      snake.pop();
+    }
+  }
+
+  function draw() {
+    ctx.fillStyle = '#05070c';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#ff6fa5';
+    ctx.fillRect(food.x * CELL, food.y * CELL, CELL - 2, CELL - 2);
+
+    ctx.fillStyle = '#6fd6ff';
+    snake.forEach((s) => ctx.fillRect(s.x * CELL, s.y * CELL, CELL - 2, CELL - 2));
+
+    if (!alive && score < TARGET_SCORE) {
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#eef1f8';
+      ctx.font = '20px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('partie terminée - recharge pour rejouer', canvas.width / 2, canvas.height / 2);
+    }
+  }
+
+  function loop() {
+    tick();
+    draw();
+  }
+
+  window.addEventListener('keydown', (e) => {
+    const map = {
+      ArrowUp: { x: 0, y: -1 },
+      ArrowDown: { x: 0, y: 1 },
+      ArrowLeft: { x: -1, y: 0 },
+      ArrowRight: { x: 1, y: 0 },
+    };
+    const d = map[e.key];
+    if (!d) return;
+    if (d.x === -direction.x && d.y === -direction.y) return;
+    nextDirection = d;
+  });
+
+  let touchStart = null;
+  canvas.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    touchStart = { x: t.clientX, y: t.clientY };
+  });
+  canvas.addEventListener('touchend', (e) => {
+    if (!touchStart) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStart.x;
+    const dy = t.clientY - touchStart.y;
+    let d;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      d = dx > 0 ? { x: 1, y: 0 } : { x: -1, y: 0 };
+    } else {
+      d = dy > 0 ? { x: 0, y: 1 } : { x: 0, y: -1 };
+    }
+    if (!(d.x === -direction.x && d.y === -direction.y)) nextDirection = d;
+    touchStart = null;
+  });
+
+  resetGame();
+  timer = setInterval(loop, 100);
+</script>
+<script type="module">
+  import { mountPortalWidget } from '../lib/portal-widget.js';
+  mountPortalWidget('portal-widget');
+</script>
+</body>
+</html>

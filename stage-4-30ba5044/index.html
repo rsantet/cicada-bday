@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cette photo se souvient de quelque chose</title>
+<link rel="stylesheet" href="../css/style.css" />
+<!-- lettre du mot-clé 4/8 : E -->
+</head>
+<body>
+<main>
+  <h1>Cette photo se souvient de quelque chose</h1>
+  <div class="card">
+    <img src="../assets/deco-4-E.svg" width="28" height="28" alt="un petit dessin" />
+    <img class="stage-photo" id="stage4-photo" src="../assets/stage4-photo.jpg" alt="une photo qui garde un secret" />
+    <p>Les photos transportent plus que des pixels.</p>
+  </div>
+  <div id="portal-widget"></div>
+  <footer class="site-footer">étape 4 sur 9</footer>
+</main>
+<script type="module">
+  import { mountPortalWidget } from '../lib/portal-widget.js';
+  mountPortalWidget('portal-widget');
+</script>
+</body>
+</html>

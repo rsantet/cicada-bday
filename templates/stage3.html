@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Regarde de plus près</title>
+<link rel="stylesheet" href="../css/style.css" />
+<!-- lettre du mot-clé 3/8 : R -->
+</head>
+<body>
+<main>
+  <h1>Rien à voir ici...</h1>
+  <div class="card">
+    <img src="../assets/deco-3-R.svg" width="28" height="28" alt="un petit dessin" />
+    <p>Cette page a l'air plutôt vide, en tout cas elle ne parle pas notre langage.</p>
+  </div>
+  <div id="portal-widget"></div>
+  <footer class="site-footer">étape 3 sur 9</footer>
+</main>
+<script type="module">
+  import { mountPortalWidget } from '../lib/portal-widget.js';
+  mountPortalWidget('portal-widget');
+
+  const encoded = "{{STAGE3_BASE64}}";
+  console.log(
+    "%ctu m'as trouvé.%c\nceci est du base64 - décode-le (essaie atob('...') ici même dans la console) :\n" + encoded,
+    'color:#ff6fa5;font-size:16px;font-weight:bold;',
+    'color:inherit;'
+  );
+</script>
+</body>
+</html>

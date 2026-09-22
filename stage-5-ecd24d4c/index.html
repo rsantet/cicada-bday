@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Le gant de fléchettes du quiz</title>
+<link rel="stylesheet" href="../css/style.css" />
+<!-- lettre du mot-clé 5/8 : S -->
+</head>
+<body>
+<main>
+  <h1>Sept d'affilée</h1>
+  <div class="card">
+    <img src="../assets/deco-5-S.svg" width="28" height="28" alt="un petit dessin" />
+    <p>Obtiens <strong>7 bonnes réponses d'affilée</strong> pour débloquer
+    le prochain indice. Une seule mauvaise réponse et la série repart à
+    zéro - pas de pression.</p>
+    <p>Série actuelle : <span class="streak" id="streak-count">0</span> / 7</p>
+    <div id="question-box">
+      <p id="question-text"></p>
+      <div class="trivia-choices" id="choices-box"></div>
+    </div>
+    <p class="hint" id="feedback"></p>
+    <div class="card" id="win-box" hidden>
+      <p>Tu l'as fait. Voici le prochain mot de passe :</p>
+      <p id="win-message" style="font-size:1.3rem;font-weight:700;"></p>
+    </div>
+  </div>
+  <div id="portal-widget"></div>
+  <footer class="site-footer">étape 5 sur 9</footer>
+</main>
+<script>
+  const QUESTIONS = [{"q": "Qui a d\u00e9montr\u00e9 le dernier th\u00e9or\u00e8me de Fermat en 1994, r\u00e9solvant un probl\u00e8me vieux de plus de 350 ans ?", "choices": ["Andrew Wiles", "Grigori Perelman", "Terence Tao", "David Hilbert"], "answer": "Andrew Wiles"}, {"q": "Combien existe-t-il de solides de Platon ?", "choices": ["4", "5", "6", "7"], "answer": "5"}, {"q": "Quelle est la valeur approch\u00e9e de la constante d'Euler-Mascheroni ?", "choices": ["0,58", "0,71", "0,43", "0,29"], "answer": "0,58"}, {"q": "Quel math\u00e9maticien est consid\u00e9r\u00e9 comme le fondateur de la th\u00e9orie des ensembles ?", "choices": ["Georg Cantor", "David Hilbert", "Giuseppe Peano", "Bertrand Russell"], "answer": "Georg Cantor"}, {"q": "Sur les sept probl\u00e8mes du prix du mill\u00e9naire, combien restent non r\u00e9solus aujourd'hui ?", "choices": ["4", "5", "6", "7"], "answer": "6"}, {"q": "Quelle lettre grecque d\u00e9signe traditionnellement le nombre d'or ?", "choices": ["Pi", "Phi", "Tau", "Psi"], "answer": "Phi"}, {"q": "Qui a d\u00e9montr\u00e9 en 1882 que pi est un nombre transcendant ?", "choices": ["Charles Hermite", "Ferdinand von Lindemann", "Joseph Liouville", "Georg Cantor"], "answer": "Ferdinand von Lindemann"}, {"q": "Laquelle de ces conjectures a \u00e9t\u00e9 d\u00e9montr\u00e9e, par Grigori Perelman ?", "choices": ["La conjecture de Poincar\u00e9", "La conjecture de Goldbach", "L'hypoth\u00e8se de Riemann", "La conjecture des nombres premiers jumeaux"], "answer": "La conjecture de Poincar\u00e9"}, {"q": "En topologie, une tasse \u00e0 caf\u00e9 est hom\u00e9omorphe \u00e0 quel autre objet ?", "choices": ["Une sph\u00e8re", "Un tore (donut)", "Un cube", "Un ruban de M\u00f6bius"], "answer": "Un tore (donut)"}, {"q": "Qui a introduit la notation moderne dy/dx pour les d\u00e9riv\u00e9es ?", "choices": ["Isaac Newton", "Gottfried Leibniz", "Leonhard Euler", "Joseph-Louis Lagrange"], "answer": "Gottfried Leibniz"}, {"q": "Combien de faces poss\u00e8de un icosa\u00e8dre r\u00e9gulier ?", "choices": ["12", "20", "8", "30"], "answer": "20"}, {"q": "D'apr\u00e8s le th\u00e9or\u00e8me des quatre couleurs, combien de couleurs suffisent pour colorer n'importe quelle carte plane ?", "choices": ["3", "4", "5", "6"], "answer": "4"}, {"q": "Quel boson est le vecteur de la force \u00e9lectromagn\u00e9tique ?", "choices": ["Le gluon", "Le photon", "Le boson Z", "Le boson de Higgs"], "answer": "Le photon"}, {"q": "Qui a formul\u00e9 les trois lois fondamentales du mouvement classique ?", "choices": ["Galileo Galilei", "Isaac Newton", "Johannes Kepler", "Ren\u00e9 Descartes"], "answer": "Isaac Newton"}, {"q": "Quelle est la vitesse de la lumi\u00e8re dans le vide, arrondie ?", "choices": ["150 000 km/s", "300 000 km/s", "3 000 000 km/s", "30 000 km/s"], "answer": "300 000 km/s"}, {"q": "Pour quelle d\u00e9couverte Albert Einstein a-t-il re\u00e7u le prix Nobel de physique (pas la relativit\u00e9) ?", "choices": ["L'effet photo\u00e9lectrique", "La relativit\u00e9 restreinte", "La relativit\u00e9 g\u00e9n\u00e9rale", "Le mouvement brownien"], "answer": "L'effet photo\u00e9lectrique"}, {"q": "Quelle exp\u00e9rience historique a mis en \u00e9vidence la nature ondulatoire de la lumi\u00e8re ?", "choices": ["L'exp\u00e9rience de Rutherford", "L'exp\u00e9rience des fentes de Young", "L'exp\u00e9rience de Millikan", "L'exp\u00e9rience de Michelson-Morley"], "answer": "L'exp\u00e9rience des fentes de Young"}, {"q": "Quel principe stipule qu'on ne peut conna\u00eetre simultan\u00e9ment, avec une pr\u00e9cision arbitraire, la position et la quantit\u00e9 de mouvement d'une particule ?", "choices": ["Le principe d'exclusion de Pauli", "Le principe d'incertitude de Heisenberg", "Le principe de compl\u00e9mentarit\u00e9 de Bohr", "Le th\u00e9or\u00e8me de Noether"], "answer": "Le principe d'incertitude de Heisenberg"}, {"q": "Quelle particule composite est form\u00e9e de deux quarks up et un quark down ?", "choices": ["Le neutron", "Le proton", "Le pion", "L'\u00e9lectron"], "answer": "Le proton"}, {"q": "Quel boson d\u00e9couvert au CERN en 2012 explique l'origine de la masse des particules ?", "choices": ["Le photon", "Le boson de Higgs", "Le gluon", "Le boson W"], "answer": "Le boson de Higgs"}, {"q": "Qui a propos\u00e9 le premier mod\u00e8le quantifi\u00e9 de l'atome, avec des \u00e9lectrons sur des orbites discr\u00e8tes ?", "choices": ["Ernest Rutherford", "Niels Bohr", "J.J. Thomson", "Max Planck"], "answer": "Niels Bohr"}, {"q": "Quel physicien a \u00e9mis l'hypoth\u00e8se que toute mati\u00e8re poss\u00e8de une nature ondulatoire ?", "choices": ["Erwin Schr\u00f6dinger", "Louis de Broglie", "Werner Heisenberg", "Paul Dirac"], "answer": "Louis de Broglie"}, {"q": "Que ne peut jamais faire l'entropie d'un syst\u00e8me isol\u00e9, selon le second principe de la thermodynamique ?", "choices": ["Augmenter", "Diminuer", "Rester constante", "\u00catre nulle"], "answer": "Diminuer"}, {"q": "Quelle mol\u00e9cule porte l'information g\u00e9n\u00e9tique chez la quasi-totalit\u00e9 des organismes vivants ?", "choices": ["L'ARN", "L'ADN", "Une prot\u00e9ine", "Un lipide"], "answer": "L'ADN"}, {"q": "Qui a formul\u00e9 la th\u00e9orie de l'\u00e9volution par s\u00e9lection naturelle ?", "choices": ["Gregor Mendel", "Charles Darwin", "Louis Pasteur", "Jean-Baptiste Lamarck"], "answer": "Charles Darwin"}, {"q": "Combien de paires de chromosomes poss\u00e8de un \u00eatre humain typique ?", "choices": ["21", "22", "23", "24"], "answer": "23"}, {"q": "Quel organite cellulaire est surnomm\u00e9 la centrale \u00e9nerg\u00e9tique de la cellule ?", "choices": ["Le noyau", "La mitochondrie", "Le ribosome", "L'appareil de Golgi"], "answer": "La mitochondrie"}, {"q": "Quel scientifique a d\u00e9couvert la p\u00e9nicilline en 1928 ?", "choices": ["Louis Pasteur", "Alexander Fleming", "Robert Koch", "Joseph Lister"], "answer": "Alexander Fleming"}, {"q": "Quelle enzyme r\u00e9plique l'ADN lors de la division cellulaire ?", "choices": ["L'ARN polym\u00e9rase", "L'ADN polym\u00e9rase", "La ligase", "L'h\u00e9licase"], "answer": "L'ADN polym\u00e9rase"}, {"q": "Quel processus permet aux plantes de convertir la lumi\u00e8re en \u00e9nergie chimique ?", "choices": ["La respiration cellulaire", "La photosynth\u00e8se", "La fermentation", "La glycolyse"], "answer": "La photosynth\u00e8se"}, {"q": "Quelle scientifique a fourni les clich\u00e9s de diffraction aux rayons X essentiels \u00e0 la d\u00e9couverte de la structure de l'ADN, sans jamais recevoir le prix Nobel ?", "choices": ["Rosalind Franklin", "Barbara McClintock", "Dorothy Hodgkin", "Marie Curie"], "answer": "Rosalind Franklin"}, {"q": "Quelle scientifique a re\u00e7u deux prix Nobel, en physique et en chimie, pour ses travaux sur la radioactivit\u00e9 ?", "choices": ["Marie Curie", "Ir\u00e8ne Joliot-Curie", "Lise Meitner", "Rosalind Franklin"], "answer": "Marie Curie"}, {"q": "Quel chimiste a construit le premier tableau p\u00e9riodique organis\u00e9 par masse atomique croissante ?", "choices": ["Dmitri Mendele\u00efev", "Antoine Lavoisier", "John Dalton", "Amedeo Avogadro"], "answer": "Dmitri Mendele\u00efev"}, {"q": "Quelle est l'unit\u00e9 de mesure de la quantit\u00e9 de mati\u00e8re dans le Syst\u00e8me International ?", "choices": ["Le gramme", "La mole", "Le becquerel", "L'amp\u00e8re"], "answer": "La mole"}];
+  const WIN_MESSAGE_B64 = "YWxvcnMgbGVzIGVuZmFudHMgdm91cyDDqnRlcyBwcsOqdHMgcG91ciBsZSBxdWl6Pw==";
+  const TARGET_STREAK = 7;
+
+  function b64ToUtf8(b64) {
+    const binary = atob(b64);
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+
+  let streak = 0;
+  let lastIndex = -1;
+
+  const streakEl = document.getElementById('streak-count');
+  const qText = document.getElementById('question-text');
+  const choicesBox = document.getElementById('choices-box');
+  const feedback = document.getElementById('feedback');
+  const questionBox = document.getElementById('question-box');
+  const winBox = document.getElementById('win-box');
+
+  function pickQuestion() {
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * QUESTIONS.length);
+    } while (idx === lastIndex && QUESTIONS.length > 1);
+    lastIndex = idx;
+    return QUESTIONS[idx];
+  }
+
+  function renderQuestion() {
+    const q = pickQuestion();
+    qText.textContent = q.q;
+    choicesBox.innerHTML = '';
+    const shuffled = [...q.choices].sort(() => Math.random() - 0.5);
+    shuffled.forEach((choice) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = choice;
+      btn.addEventListener('click', () => handleAnswer(choice, q.answer));
+      choicesBox.appendChild(btn);
+    });
+  }
+
+  function handleAnswer(choice, answer) {
+    if (choice === answer) {
+      streak += 1;
+      streakEl.textContent = streak;
+      if (streak >= TARGET_STREAK) {
+        questionBox.hidden = true;
+        feedback.textContent = '';
+        winBox.hidden = false;
+        document.getElementById('win-message').textContent = b64ToUtf8(WIN_MESSAGE_B64);
+        return;
+      }
+      feedback.textContent = 'Correct !';
+    } else {
+      streak = 0;
+      streakEl.textContent = streak;
+      feedback.textContent = `Pas tout à fait - c'était "${answer}". Série remise à zéro.`;
+    }
+    renderQuestion();
+  }
+
+  renderQuestion();
+</script>
+<script type="module">
+  import { mountPortalWidget } from '../lib/portal-widget.js';
+  mountPortalWidget('portal-widget');
+</script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Le gant de fléchettes du quiz</title>
+<link rel="stylesheet" href="../css/style.css" />
+<!-- lettre du mot-clé 5/8 : S -->
+</head>
+<body>
+<main>
+  <h1>Sept d'affilée</h1>
+  <div class="card">
+    <img src="../assets/deco-5-S.svg" width="28" height="28" alt="un petit dessin" />
+    <p>Obtiens <strong>7 bonnes réponses d'affilée</strong> pour débloquer
+    le prochain indice. Une seule mauvaise réponse et la série repart à
+    zéro - pas de pression.</p>
+    <p>Série actuelle : <span class="streak" id="streak-count">0</span> / 7</p>
+    <div id="question-box">
+      <p id="question-text"></p>
+      <div class="trivia-choices" id="choices-box"></div>
+    </div>
+    <p class="hint" id="feedback"></p>
+    <div class="card" id="win-box" hidden>
+      <p>Tu l'as fait. Voici le prochain mot de passe :</p>
+      <p id="win-message" style="font-size:1.3rem;font-weight:700;"></p>
+    </div>
+  </div>
+  <div id="portal-widget"></div>
+  <footer class="site-footer">étape 5 sur 9</footer>
+</main>
+<script>
+  const QUESTIONS = {{TRIVIA_JSON}};
+  const WIN_MESSAGE_B64 = "{{STAGE5_MESSAGE_B64}}";
+  const TARGET_STREAK = 7;
+
+  function b64ToUtf8(b64) {
+    const binary = atob(b64);
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+
+  let streak = 0;
+  let lastIndex = -1;
+
+  const streakEl = document.getElementById('streak-count');
+  const qText = document.getElementById('question-text');
+  const choicesBox = document.getElementById('choices-box');
+  const feedback = document.getElementById('feedback');
+  const questionBox = document.getElementById('question-box');
+  const winBox = document.getElementById('win-box');
+
+  function pickQuestion() {
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * QUESTIONS.length);
+    } while (idx === lastIndex && QUESTIONS.length > 1);
+    lastIndex = idx;
+    return QUESTIONS[idx];
+  }
+
+  function renderQuestion() {
+    const q = pickQuestion();
+    qText.textContent = q.q;
+    choicesBox.innerHTML = '';
+    const shuffled = [...q.choices].sort(() => Math.random() - 0.5);
+    shuffled.forEach((choice) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = choice;
+      btn.addEventListener('click', () => handleAnswer(choice, q.answer));
+      choicesBox.appendChild(btn);
+    });
+  }
+
+  function handleAnswer(choice, answer) {
+    if (choice === answer) {
+      streak += 1;
+      streakEl.textContent = streak;
+      if (streak >= TARGET_STREAK) {
+        questionBox.hidden = true;
+        feedback.textContent = '';
+        winBox.hidden = false;
+        document.getElementById('win-message').textContent = b64ToUtf8(WIN_MESSAGE_B64);
+        return;
+      }
+      feedback.textContent = 'Correct !';
+    } else {
+      streak = 0;
+      streakEl.textContent = streak;
+      feedback.textContent = `Pas tout à fait - c'était "${answer}". Série remise à zéro.`;
+    }
+    renderQuestion();
+  }
+
+  renderQuestion();
+</script>
+<script type="module">
+  import { mountPortalWidget } from '../lib/portal-widget.js';
+  mountPortalWidget('portal-widget');
+</script>
+</body>
+</html>

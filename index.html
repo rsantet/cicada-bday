@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kdo</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<main>
+  <h1>Un petit Kdo</h1>
+  <div class="card">
+    <p>H4PPYBIRTHD4Y</p>
+    <div id="portal-widget"></div>
+  </div>
+  <footer class="site-footer">La cigale ta guidera.</footer>
+</main>
+<script type="module">
+  import { mountPortalWidget } from './lib/portal-widget.js';
+  mountPortalWidget('portal-widget');
+</script>
+</body>
+</html>
